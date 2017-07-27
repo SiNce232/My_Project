@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1501072015 source:c:\users\amruddin hilmy\desktop\new folder (2)\uas project\main.cpp
+	<iostream>
+	<string.h>
+	<stdlib.h>
+	<iomanip>
+	<string>
+

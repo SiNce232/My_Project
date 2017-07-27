@@ -1,122 +1,229 @@
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <stdlib.h>
 #include <iomanip>
+#include <string>
 
 using namespace std;
 
-struct data_buku
-{
-    string kode_buku;
-    string judul_buku;
-    string stok;
-    data_buku *link;
-};
-int jml=0;
-data_buku *buku[50];
-data_buku *phead_buku = NULL;
+#define PAUSE {cout << ("\n"); system("pause");}
 
-struct data_user
-{
-    string nama;
-    string alamat;
-    string judul_buku;
-};
-int jml_user=0;
-data_user *user[50];
-data_user *phead_user = NULL;
+// membandingkan sebuah string (ignore case)
 
+int compare(char *str1, char *str2) {
+    int len = strlen(str1);
+    int beda = 0;
 
-void tambah_buku()
-{
-    buku[jml]= new data_buku;
+    for (int i=0; i<len; i++) {
+        if (str1[i] >= 'A' && str1[i] <= 'Z') str1[i] += 32;
+        if (str2[i] >= 'A' && str2[i] <= 'Z') str2[i] += 32;
 
-    cout<<"masukan kode buku : ";
-    cin>>buku[jml]->kode_buku;
-    cout<<"masukan judul buku : ";
-    cin>>buku[jml]->judul_buku;
-    cout<<"masukan stok buku : ";
-    cin>>buku[jml]->stok;
-    buku[jml]->link= phead_buku;
-    phead_buku=buku[jml];
-    jml++;
-
-    cout<<endl<<endl;
-
+        if (str1[i] != str2[i]) beda++;
+        if (str2[i] == 'beda') {
+            beda++;
+                return beda;
+        }
+    }
+    if (strlen(str2) < len) {
+        beda += strlen(str2) - len;
+    }
+    return beda;
 }
-
-void hapus_buku()
-{
-
-    string input;
-    cout<<"\n\nmasukan judul buku yang ingin di hapus : ";
-    cin>>input;
-    data_buku *ptemp=phead_buku;
-    data_buku *pbefore;
-    while (ptemp != NULL && ptemp->judul_buku != input){
-        pbefore=ptemp;
-        ptemp=ptemp->link;
-    }
-    pbefore->link=ptemp->link;
-
-    cout<<endl<<endl;
-
-}
-
-void show_buku()
-{
-    cout<<left<<setw(20)<<"kode_buku"<<setw(20)<<"judul_buku"<<setw(10)<<"stok"<<endl;
-    for(int z=0;z<50;z++){
-        cout<<"-";
-    }
-    cout<<endl;
-
-    data_buku *tr=phead_buku;
-    while (tr !=NULL){
-        cout << setw(20)<<tr->kode_buku<<setw(20)<<tr->judul_buku<<setw(10)<<tr->stok<<endl;
-        tr=tr->link;
-    }
-
-    for(int z=0;z<50;z++){
-        cout<<"-";
-    }
-}
-
-
 
 int main()
 {
-    int chs,cod_p,cod_k;
+    struct data_buku {
+        char kode_buku[10];
+        char judul_buku[50];
+        int stock;
+        struct data_buku *next;
+    };
+    struct data_buku *awal, *akhir, *p, *Psbl, *baru;
 
-    cout << "\nSelamat Datang Di Perpustakaan Kami\n\n";
-    do{
-        cout << "\n\tMenu Perpustakaan:\n\n";
-        cout << "\t1. tambah buku\n";
-        cout << "\t2. Hapus buku\n";
-        cout << "\t3. peminjaman\n";
-        cout << "\nPilih salahsatu : ";
-        cin >> chs;
-        system("cls");
+    awal = akhir = NULL;
 
-        switch (chs)
-        {
-        case 1:
-            tambah_buku();
-            show_buku();
-            break;
+    int pilihan = 1, posisi, posisi_sekarang,posisi_data;
+    char cari[50], konfirmasi;
+    cout << "SELAMAT DATANG DI PERPUSTAKAAN KAMI\n";
+    do {
+            cout << "\n\t||=======================||";
+            cout << "\n\t||Menu Perpustakaan      ||";
+            cout << "\n\t||1. Tambah Data Buku    ||"
+                    "\n\t||2. Hapus Buku          ||"
+                    "\n\t||3. Cari Buku           ||"
+                    "\n\t||4. Tampilkan Data Buku ||"
+                    "\n\t||0. EXIT                ||"
+                    "\n\t||=======================||";
+            cout << "\n\nMasukkan pilihan anda : ";
+            cin >> pilihan;
+            system("cls");
+
+        switch (pilihan) {
+            case 1: // tambah data kedalam list
+                baru = (struct data_buku *) malloc(sizeof(struct data_buku)); // alokasikan list baru di memori
+                if (baru == NULL) {
+                    cout << "\nMemori tidak cukup.";
+                    PAUSE;
+                    break;
+                }
+                cout << "Kode buku: ";
+                cin >> baru->kode_buku;
+//                getchar();
+                cout << "Judul Buku  : ";
+                cin >> baru->judul_buku;
+                cout << "Stock : ";
+                cin >> baru->stock;
+
+                if (awal == NULL) {
+                    baru->next = NULL;
+                    awal = baru;
+                    akhir = baru;
+                } else {
+                    cout << "\nTambahkan Data di (Default = akhir) : \n";
+                    cout << "1. Awal\n2. Tengah\n3. Akhir\n\nPilihan Anda : ";
+                    cin >> posisi;
+                    switch(posisi) {
+                        case 1:
+                            // tambah data di awal list
+                            baru->next = awal;
+                            awal = baru;
+                            PAUSE;
+                            break;
+                        case 2:
+                            cout << "Masukan posisi data : ";
+                            cin >> posisi_data;
+                            p = awal;
+                            Psbl = NULL;
+                            posisi_sekarang = 1;
+                            while (p != NULL && posisi_sekarang < posisi_data) {
+                                //Psbl = p;
+                                p = p->next;
+                                posisi_sekarang++;
+                            }
+                            if (p != NULL) {
+                                // tambahkan data di tengah (posisi_data)
+                                Psbl = p;
+                                baru->next = p->next;
+                                Psbl->next = baru;
+                            }
+                            break;
+                        case 3:
+                        default:
+                            // tambah data di akhir list
+                            akhir->next = baru;
+                            akhir = baru;
+                            baru->next = NULL;
+                            PAUSE;
+                            break;
+                    }
+                }
+                break;
         case 2:
-            show_buku();
-            hapus_buku();
-            show_buku();
-            break;
-        case 3:
+                p = awal;
+                cout << "==========================================";
+                if (p == NULL) {
+                    cout << "\n List Kosong\n";
+                    cout << "\n------------------------------------------\n";
+                    break;
+                } else {
+                    while (p != NULL) {
+                        cout << "\nKode Buku   : " << p->kode_buku;
+                        cout << "\nJudul Buku  : " << p->judul_buku;
+                        cout << "\nStock : " << p->stock;
+                        cout << "\n==========================================\n";
+                        p = p->next;
+                    }
+                }
+                cout << "\nMasukan Kode Buku/Judul Buku dari data yang ingin dihapus : ";
+                cin >> cari;
+                Psbl = NULL;
+                p = awal;
+                while (p != NULL) {
+                    if (compare(p->kode_buku, cari) == 0 || compare(p->judul_buku, cari) == 0) {
+                        cout << "\n==========================================";
+                        cout << "\nKode Buku   : " << p->kode_buku;
+                        cout << "\nJudul Buku  : " << p->judul_buku;
+                        cout << "\nStock : " << p->stock;
+                        cout << "\n==========================================\n";
+                        cout << "\nIngin menghapus data di atas (y/n) : ";
+                        cin >> &konfirmasi;
+                        if (konfirmasi == 'y' || konfirmasi == 'Y') {
+                            if (awal->next == NULL) {
+                                awal = NULL;
+                                akhir = awal;
+                            } else if (p == awal) {
+                                // hapus di awal
+                                Psbl = awal;
+                                awal = Psbl->next;
+                            } else if (p == akhir) {
+                                // hapus di akhir
+                                Psbl->next = NULL;
+                                akhir = Psbl;
+                            }
+                            else {
+                                // hapus di tengah
+                                Psbl->next = p->next;
+                            }
+                            cout << "\nData berhasil dihapus.\n\n";
+                        } else {
+                            cout << "\nData tidak jadi dihapus.\n\n";
+                        }
+                        break;
+                    }
+                    Psbl = p;
+                    p = p->next;
+                }
 
-            break;
-        default:
-            cout << "Tidak ada kode tersebut dalam data buku kami\n";
-            cout << "Silahkan masukkan lagi";
+                if (p == NULL) {
+                    cout << "\n\nKode Buku/Judul Buku tidak ditemukan !\n\n";
+                }
+                PAUSE;
+                break;
+            case 3:
+                cout << "\nMasukan Kode Buku/Judul Buku yang di cari : ";
+                cin >> cari;
+                p = awal;
+                while (p != NULL) {
+                    if (compare(p->kode_buku, cari) == 0 || compare(p->judul_buku, cari) == 0) {
+                        cout << "\n==========================================";
+                        cout << "\nKode Buku   : " << p->kode_buku;
+                        cout << "\nJudul Buku  : " << p->judul_buku;
+                        cout << "\nStock : " << p->stock;
+                        cout << "\n==========================================\n";
+                        PAUSE;
+                        break;
+                    }
+                    p = p->next;
+                }
+                if (p == NULL) {
+                    cout << "\nData tidak ditemukan ! \n\n";
+                    PAUSE;
+                }
+                break;
+        case 4: // tampilkan list
+                p = awal;
+                cout << "==========================================";
+                if (p == NULL) {
+                    cout << "\n List Kosong\n";
+                    cout << "\n------------------------------------------\n";
+                } else {
+                    while (p != NULL) {
+                        cout << "\nKode Buku   : " << p->kode_buku;
+                        cout << "\nJudul Buku  : " << p->judul_buku;
+                        cout << "\nStock       : " << p->stock;
+                        cout << "\n==========================================\n";
+                        p = p->next;
+                    }
+                }
+                cout << "\n";
+                PAUSE;
+                break;
+            case 0: break;
+            default:
+                cout << "\nPilihan salah !\n";
+                break;
         }
+    } while (pilihan > 0);
 
-    }while (chs!=4);
     return 0;
 }
