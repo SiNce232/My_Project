@@ -8,6 +8,117 @@ using namespace std;
 
 #define PAUSE {cout << ("\n"); system("pause");}
 
+
+struct data_buku {
+        char kode_buku[10];
+        char judul_buku[50];
+        int stock;
+        struct data_buku *next;
+};
+struct data_buku *awal, *akhir, *p, *Psbl, *baru;
+
+//sorting kode buku ascending
+void sort_kode_buku(int jml){
+
+    int stock;
+    char kode[10], judul[50];
+    p=awal;
+
+    for (int a=1;a<jml;a++){                    //melakukan looping sebanyak data buku
+        while (p->next != NULL){                //melakukan looping jika pointer p->next tidak bernilai NUUL
+            if (strcmp(p->kode_buku, p->next->kode_buku) ==1 ){     //membandingkan array kode buku jika birnilai 1 berarti (array p->kode_buku) lebih besar dari (array p->next->kode_buku)
+
+                strcpy(kode, p->kode_buku);         //menyalin (array p->kode_buku) ke array kode;
+                strcpy(p->kode_buku, p->next->kode_buku);       //menyalin (array p->next->kode_buku) ke array kode (array p->kode_buku);
+                strcpy(p->next->kode_buku, kode);       //menyalin array kode ke (array p->next->kodebuku)
+
+                strcpy(judul, p->judul_buku);
+                strcpy(p->judul_buku, p->next->judul_buku);
+                strcpy(p->next->judul_buku, judul);
+
+                stock=p->stock;
+                p->stock=p->next->stock;
+                p->next->stock=stock;
+
+            }
+            p=p->next;
+        }
+        p=awal;
+    }
+
+}
+
+void sort_judul_buku(int jml)
+{
+    int stock;
+    char kode[10], judul[50];
+    p=awal;
+
+    for (int a=1;a<jml;a++){                    //melakukan looping sebanyak data buku
+        while (p->next != NULL){                //melakukan looping jika pointer p->next tidak bernilai NUUL
+            if (strcmp(p->judul_buku, p->next->judul_buku) ==1 ){     //membandingkan array judul buku jika birnilai 1 berarti (array p->judul_buku) lebih besar dari (array p->next->judul_buku)
+
+                strcpy(kode, p->kode_buku);         //menyalin (array p->kode_buku) ke array kode;
+                strcpy(p->kode_buku, p->next->kode_buku);       //menyalin (array p->next->kode_buku) ke array kode (array p->kode_buku);
+                strcpy(p->next->kode_buku, kode);       //menyalin array kode ke (array p->next->kodebuku)
+
+                strcpy(judul, p->judul_buku);
+                strcpy(p->judul_buku, p->next->judul_buku);
+                strcpy(p->next->judul_buku, judul);
+
+                stock=p->stock;
+                p->stock=p->next->stock;
+                p->next->stock=stock;
+
+            }
+            p=p->next;
+        }
+        p=awal;
+    }
+
+}
+
+void update_stock(){
+    int up_stok;
+    char kode[10];
+    data_buku *prv;
+    p=awal;
+
+    if (p == NULL) {
+        cout << "\n List Kosong\n";
+        cout << "\n------------------------------------------\n";
+    } else {
+        while (p != NULL) {
+            cout << "\nKode Buku   : " << p->kode_buku;
+            cout << "\nJudul Buku  : " << p->judul_buku;
+            cout << "\nStock : " << p->stock;
+            cout << "\n==========================================\n";
+            p = p->next;
+        }
+
+        cout<<"\nmasukan kode buku yang ingin di update : ";
+        cin>>kode;
+        cout<<"\nmasukan stok yang ingin di update : ";
+        cin>>up_stok;
+
+        p=awal;
+        while (p!=NULL){
+            if (strcmp(kode, p->kode_buku)==0 ){         //membandingkan aray kode dengan array (p->kode_buku) jika bernilai 0 maka data tersebut sama
+                p->stock=up_stok;                           //lalu mengupdate stok buku
+                cout<<"stok buku berhasil di update"<<endl;
+                break;
+            }
+            p=p->next;
+        }
+
+        if (p==NULL){
+            cout<<"kode buku tidak ada"<<endl;
+        }
+
+    }
+
+}
+
 // membandingkan sebuah string (ignore case)
 
 int compare(char *str1, char *str2) {
@@ -32,17 +143,10 @@ int compare(char *str1, char *str2) {
 
 int main()
 {
-    struct data_buku {
-        char kode_buku[10];
-        char judul_buku[50];
-        int stock;
-        struct data_buku *next;
-    };
-    struct data_buku *awal, *akhir, *p, *Psbl, *baru;
 
     awal = akhir = NULL;
 
-    int pilihan = 1, posisi, posisi_sekarang,posisi_data;
+    int pilihan = 1, posisi, posisi_sekarang,posisi_data, jml;
     char cari[50], konfirmasi;
     cout << "SELAMAT DATANG DI PERPUSTAKAAN KAMI\n";
     do {
@@ -52,6 +156,7 @@ int main()
                     "\n\t||2. Hapus Buku          ||"
                     "\n\t||3. Cari Buku           ||"
                     "\n\t||4. Tampilkan Data Buku ||"
+                    "\n\t||5. update stok buku    ||"
                     "\n\t||0. EXIT                ||"
                     "\n\t||=======================||";
             cout << "\n\nMasukkan pilihan anda : ";
@@ -201,7 +306,9 @@ int main()
                 }
                 break;
         case 4: // tampilkan list
+                int sort_pilih;
                 p = awal;
+                jml = 0;
                 cout << "==========================================";
                 if (p == NULL) {
                     cout << "\n List Kosong\n";
@@ -213,12 +320,56 @@ int main()
                         cout << "\nStock       : " << p->stock;
                         cout << "\n==========================================\n";
                         p = p->next;
+                        jml++;
                     }
+                    do{
+                    cout<<"\n1. Sorting Kode buku Ascending";
+                    cout<<"\n2. Sorting Judul Buku Ascending";
+                    cout<<"\n3. kembali ke menu";
+                    cout<<"\n\nPilihan anda : ";
+                    cin>>sort_pilih;
+                    switch (sort_pilih){
+                        case 1:
+                            sort_kode_buku(jml);
+                            system("cls");
+                            cout<<"sorting kode buku ascending \n\n";
+                                while (p != NULL) {
+                                cout << "\nKode Buku   : " << p->kode_buku;
+                                cout << "\nJudul Buku  : " << p->judul_buku;
+                                cout << "\nStock       : " << p->stock;
+                                cout << "\n==========================================\n";
+                                p = p->next;
+                                jml++;
+                            }
+                            break;
+                        case 2:
+                            sort_judul_buku(jml);
+                            system("cls");
+                            cout<<"sorting Judul buku ascending \n\n";
+                                while (p != NULL) {
+                                cout << "\nKode Buku   : " << p->kode_buku;
+                                cout << "\nJudul Buku  : " << p->judul_buku;
+                                cout << "\nStock       : " << p->stock;
+                                cout << "\n==========================================\n";
+                                p = p->next;
+                                jml++;
+                            }
+                            break;
+                        case 3:
+                            break;
+
+                    }
+                    }while (sort_pilih!=3);
+
                 }
                 cout << "\n";
                 PAUSE;
                 break;
-            case 0: break;
+        case 5:
+            update_stock();
+            break;
+
+        case 0: break;
             default:
                 cout << "\nPilihan salah !\n";
                 break;
